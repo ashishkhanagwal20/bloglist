@@ -1,8 +1,9 @@
 const blogsRouter = require("express").Router();
 const jwt = require("jsonwebtoken");
+const mongoose = require("mongoose");
 const Blog = require("../models/blog");
 const User = require("../models/user");
-
+const { isValidObjectId } = require("mongoose");
 // const getTokenFrom = (request) => {
 //   const authorization = request.get("authorization");
 //   if (authorization && authorization.startsWith("Bearer ")) {
@@ -88,6 +89,33 @@ blogsRouter.put("/:id", async (request, response) => {
   } else {
     // Handle the case where the blog with the given id was not found
     response.status(404).end();
+  }
+});
+
+blogsRouter.put("/:id/like", async (request, response) => {
+  try {
+    const blogId = request.params.id;
+
+    // Validate if blogId is a valid ObjectId
+    if (!isValidObjectId(blogId)) {
+      return response.status(400).json({ error: "Invalid blog ID" });
+    }
+
+    // Find the blog by ID and increment the likes field
+    const updatedBlog = await Blog.findByIdAndUpdate(
+      blogId,
+      { $inc: { likes: 1 } }, // Increment the likes by 1
+      { new: true } // Return the updated document
+    );
+
+    if (!updatedBlog) {
+      return response.status(404).json({ error: "Blog not found" });
+    }
+
+    response.json(updatedBlog);
+  } catch (error) {
+    console.error(error);
+    response.status(500).json({ error: "Internal Server Error" });
   }
 });
 
