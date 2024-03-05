@@ -4,34 +4,11 @@ const mongoose = require("mongoose");
 const Blog = require("../models/blog");
 const User = require("../models/user");
 const { isValidObjectId } = require("mongoose");
-// const getTokenFrom = (request) => {
-//   const authorization = request.get("authorization");
-//   if (authorization && authorization.startsWith("Bearer ")) {
-//     return authorization.replace("Bearer ", "");
-//   }
-//   return null;
-// };
-// blogsRouter.get("/", (request, response) => {s
-//   Blog.find({}).then((blogs) => {
-//     response.json(blogs);
-//   });
-// });
 
 blogsRouter.get("/", async (request, response) => {
   const blogs = await Blog.find({}).populate("user", { username: 1, name: 1 });
   response.json(blogs);
 });
-
-// blogsRouter.post("/", (request, response, next) => {
-//   const blog = new Blog(request.body);
-
-//   blog
-//     .save()
-//     .then((result) => {
-//       response.status(201).json(result);
-//     })
-//     .catch((error) => next(error));
-// });
 
 blogsRouter.delete("/:id", async (request, response) => {
   const blog = await Blog.findByIdAndDelete(request.params.id);
@@ -56,6 +33,7 @@ blogsRouter.post("/", async (request, response) => {
 
   const blog = new Blog({
     title: body.title,
+    content: body.content,
     author: body.author,
     url: body.url,
     likes: body.likes || 0,
